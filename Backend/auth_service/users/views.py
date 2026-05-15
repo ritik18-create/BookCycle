@@ -1,57 +1,188 @@
+# from django.contrib.auth.models import User
+# from django.contrib.auth import authenticate
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework_simplejwt.tokens import RefreshToken
+
+
+# @api_view(['POST'])
+# def register(request):
+#     username = request.data.get("username")
+#     email = request.data.get("email")
+#     password = request.data.get("password")
+
+#     # Validate fields
+#     if not username or not email or not password:
+#         return Response(
+#             {"error": "Username, email, and password are required"},
+#             status=400
+#         )
+
+#     # Check existing username
+#     if User.objects.filter(username=username).exists():
+#         return Response(
+#             {"error": "Username already exists"},
+#             status=400
+#         )
+
+#     # Check existing email
+#     if User.objects.filter(email=email).exists():
+#         return Response(
+#             {"error": "Email already exists"},
+#             status=400
+#         )
+
+#     # Create user
+#     user = User.objects.create_user(
+#         username=username,
+#         email=email,
+#         password=password
+#     )
+
+#     return Response({
+#         "message": "User registered successfully",
+#         "user": {
+#             "id": user.id,
+#             "username": user.username,
+#             "email": user.email
+#         }
+#     })
+
+
+# @api_view(['POST'])
+# def login(request):
+#     username = request.data.get("email")
+#     password = request.data.get("password")
+#     print(request.data)
+
+#     # Validate fields
+#     if not username or not password:
+#         return Response(
+#             {"error": "email and password are required"},
+#             status=400
+#         )
+
+#     # Authenticate user
+#     user = authenticate(username=email, password=password)
+
+#     if user is None:
+#         return Response(
+#             {"error": "Invalid credentials"},
+#             status=400
+#         )
+
+#     # Generate JWT tokens
+#     refresh = RefreshToken.for_user(user)
+
+#     return Response({
+#         "message": "Login successful",
+#         "refresh": str(refresh),
+#         "access": str(refresh.access_token),
+#         "user": {
+#             "id": user.id,
+#             "username": user.email,
+#             "email": user.email
+#         }
+#     })
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .mongo import users_collection
-from .models import create_user, user_serializer
-from django.contrib.auth.hashers import make_password, check_password
-from .utils import generate_token
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(['POST'])
 def register(request):
-    data = request.data
-    print("DATA RECEIVED:", data)
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
 
-    # Check if user exists
-    if users_collection.find_one({"email": data["email"]}):
-        return Response({"error": "User already exists"}, status=400)
+    print("REGISTER DATA:", request.data)
 
-    # Hash password
-    hashed_password = make_password(data["password"])
+    # Validate fields
+    if not username or not email or not password:
+        return Response(
+            {"error": "Username, email, and password are required"},
+            status=400
+        )
 
-    user = create_user(data["name"], data["email"], hashed_password)
+    # Check existing username
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error": "Username already exists"},
+            status=400
+        )
 
-    result = users_collection.insert_one(user)
-    user["_id"] = result.inserted_id
+    # Check existing email
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "Email already exists"},
+            status=400
+        )
 
-    token = generate_token(user)
+    # Create user
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password
+    )
 
     return Response({
         "message": "User registered successfully",
-        "token": token,
-        "user": user_serializer(user)
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
     })
 
 
 @api_view(['POST'])
 def login(request):
-    data = request.data
+    email = request.data.get("email")
+    password = request.data.get("password")
 
-    # Validate input
-    if "email" not in data or "password" not in data:
-        return Response({"error": "Email and password required"}, status=400)
+    print("LOGIN DATA:", request.data)
 
-    user = users_collection.find_one({"email": data["email"]})
+    # Validate fields
+    if not email or not password:
+        return Response(
+            {"error": "Email and password are required"},
+            status=400
+        )
 
-    if not user:
-        return Response({"error": "User not found"}, status=404)
+    # Find user using email
+    try:
+        user_obj = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response(
+            {"error": "User not found"},
+            status=404
+        )
 
-    if not check_password(data["password"], user["password"]):
-        return Response({"error": "Invalid password"}, status=400)
+    # Authenticate using username
+    user = authenticate(
+        username=user_obj.username,
+        password=password
+    )
 
-    token = generate_token(user)
+    if user is None:
+        return Response(
+            {"error": "Invalid credentials"},
+            status=400
+        )
+
+    # Generate JWT tokens
+    refresh = RefreshToken.for_user(user)
 
     return Response({
         "message": "Login successful",
-        "token": token,
-        "user": user_serializer(user)
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
     })

@@ -25,7 +25,7 @@ const handleSubmit = async (e) => {
 
     // Save token
     localStorage.setItem("token", res.data.token);
-
+    console.log("LOGIN RESPONSE:", response);
     // Redirect
     navigate("/dashboard");
   } catch (err) {

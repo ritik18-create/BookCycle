@@ -3,9 +3,9 @@ import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 function Register() {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
+     username: "",
+      email: "",
+      password: ""
   });
 
   const handleChange = (e) => {
@@ -51,7 +51,7 @@ console.log("FORM DATA:", form);
         {/* Name */}
         <div className="mb-4">
           <input
-            name="name"
+            name="username"
             placeholder="Full Name"
             onChange={handleChange}
             className="w-full px-4 py-3 rounded-lg bg-white/20 placeholder-white/70 text-white outline-none border border-transparent focus:border-white focus:ring-2 focus:ring-white/40 transition"
