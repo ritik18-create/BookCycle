@@ -1,41 +1,60 @@
 import { useState } from "react";
-import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 function Login() {
-  const [form, setForm] = useState({
+  const navigate = useNavigate();
+
+  // form state
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // handle input change
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-const navigate = useNavigate();
+  // login submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    try {
+      // API request
+      const response = await API.post("/auth/login/", formData);
 
-  try {
-    const res = await API.post("/auth/login/", form);
+      console.log("LOGIN RESPONSE:", response.data);
 
-    // Save token
-    localStorage.setItem("token", res.data.token);
-    console.log("LOGIN RESPONSE:", response);
-    // Redirect
-    navigate("/dashboard");
-  } catch (err) {
-    alert(err.response?.data?.error || "Login failed");
-  }
-};
+      // save JWT token
+      if (response.data.access) {
+        localStorage.setItem("token", response.data.access);
+
+        alert("Login Successful ✅");
+
+        // redirect
+        navigate("/dashboard");
+      } else {
+        alert("Login failed");
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        error.response?.data?.detail ||
+        error.response?.data?.error ||
+        "Login failed"
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4">
-      
+
       {/* Glass Card */}
       <form
         onSubmit={handleSubmit}
@@ -56,7 +75,9 @@ const handleSubmit = async (e) => {
             type="email"
             name="email"
             placeholder="Enter your email"
+            value={formData.email}
             onChange={handleChange}
+            required
             className="w-full px-4 py-3 rounded-lg bg-white/20 placeholder-white/70 text-white outline-none border border-transparent focus:border-white focus:ring-2 focus:ring-white/40 transition"
           />
         </div>
@@ -67,20 +88,23 @@ const handleSubmit = async (e) => {
             type="password"
             name="password"
             placeholder="Enter your password"
+            value={formData.password}
             onChange={handleChange}
+            required
             className="w-full px-4 py-3 rounded-lg bg-white/20 placeholder-white/70 text-white outline-none border border-transparent focus:border-white focus:ring-2 focus:ring-white/40 transition"
           />
         </div>
 
-        {/* Forgot */}
+        {/* Forgot Password */}
         <div className="flex justify-end text-sm mb-4">
           <span className="cursor-pointer text-white/80 hover:text-white transition">
             Forgot password?
           </span>
         </div>
 
-        {/* Button */}
+        {/* Login Button */}
         <button
+          type="submit"
           className="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-indigo-100 transition duration-300 shadow-lg"
         >
           Login
