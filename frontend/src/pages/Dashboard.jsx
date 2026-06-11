@@ -211,7 +211,14 @@ function Dashboard() {
                     user &&
                     user.user_id !== book.user_id && (
                       <button
-                        onClick={() => buyBook(book.id)}
+                         onClick={() => buyBook(book.id)}
+//                         onClick={async ()=>{
+
+//    const res = await buyBook(book._id);
+
+//    alert(res.message);
+
+//  }}
                         className="flex-1 bg-green-500 hover:bg-green-600 py-2 rounded-lg text-sm font-semibold transition"
                       >
                         Buy

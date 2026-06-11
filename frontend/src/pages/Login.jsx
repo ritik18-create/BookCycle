@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../services/api";
+import api from "../services/api";
+
 
 function Login() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function Login() {
 
     try {
       // API request
-      const response = await API.post("/auth/login/", formData);
+      const response = await api.post("/auth/login/", formData);
 
       console.log("LOGIN RESPONSE:", response.data);
 

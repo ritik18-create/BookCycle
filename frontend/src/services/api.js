@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 // Axios instance
 const API = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
@@ -69,5 +70,25 @@ export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refresh");
 };
+// const api = {
+//   loginUser,
+//   registerUser,
+ 
+// };
+// export const buyBook = async (bookId) => {
+//   const token = localStorage.getItem("token");
 
-export default API;
+//   const response = await fetch(
+//     `http://127.0.0.1:8000/api/books/buy/${bookId}/`,
+//     {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     }
+//   );
+
+//   return response.json();
+// };
+
+ export default API;

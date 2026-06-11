@@ -6,5 +6,9 @@ urlpatterns = [
     path('', get_books),
     path('delete/<str:id>/', delete_book),
     path('search/', search_books),
-    path("buy/<str:id>/", buy_book),
+    # path("buy/<str:id>/", buy_book),
+#     path(
+#     "buy/<str:book_id>/",
+#     buy_book
+# ),
 ]

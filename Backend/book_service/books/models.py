@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from datetime import datetime
 
+
 def book_serializer(book) -> dict:
     return {
         "id": str(book["_id"]),
@@ -27,3 +28,16 @@ def create_book(data, user_id):
         "user_id": user_id,  # ✅ important
         "created_at": datetime.utcnow()
     }
+# class Order(models.Model):
+#     book_id = models.CharField(max_length=100)
+#     buyer_id = models.CharField(max_length=100)
+#     seller_id = models.CharField(max_length=100)
+#     status = models.CharField(
+#         max_length=20,
+#         default="Pending"
+#     )
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"{self.book_id} - {self.status}"
